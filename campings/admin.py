@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from campings.models import CampGround
+
+
+@admin.register(CampGround)
+class CampGroundAdmin(admin.ModelAdmin):
+    pass

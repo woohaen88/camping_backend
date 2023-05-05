@@ -39,8 +39,14 @@ SYSTEM_APPS = [
 ]
 CUSTOM_APPS = [
     "users.apps.UsersConfig",
+    "common.apps.CommonConfig",
+    "medias.apps.MediasConfig",
+    "tags.apps.TagsConfig",
+    "campings.apps.CampingsConfig",
 ]
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework",
+]
 INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
@@ -127,3 +133,11 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
