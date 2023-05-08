@@ -20,3 +20,7 @@ class CampGroundSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def validate(self, value):
+        check_in = value["check_in"]
+        return value
