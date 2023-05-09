@@ -9,7 +9,7 @@ from rest_framework import status
 from campings.models import CampGround
 
 CampGround_URL = "http://localhost:8000/api/v1/camping/"
-BASE_PAYLOAD = payload = dict(
+BASE_PAYLOAD = dict(
     check_in="2022-12-21",
     check_out="2023-12-23",
     ratings=3,
@@ -36,7 +36,9 @@ def create_user(**kwargs):
 
 def create_camping(owner, **kwargs) -> CampGround:
     payload = BASE_PAYLOAD
-    payload.update(**kwargs)
+    for k, v in kwargs.items():
+        payload[k] = v
+
     campground = CampGround.objects.create(owner=owner, **payload)
     return campground
 
@@ -67,15 +69,7 @@ class PublicModelTest(TestCase):
         self.client = APIClient()
 
     def test_auth_required(self):
-        payload = dict(
-            check_in="2022-12-21",
-            check_out="2023-12-23",
-            ratings=3,
-            description="",
-            address="test address",
-            name="sample",
-        )
-        res = self.client.post(CampGround_URL, payload)
+        res = self.client.post(CampGround_URL, BASE_PAYLOAD)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_url_success(self):
@@ -187,12 +181,15 @@ class PrivateCampGroundModelTest(TestCase):
     def test_date_validate_campground_detail(self):
         """체크인이 체크아웃보다 느릴수 없음"""
         PAYLOAD = BASE_PAYLOAD.copy()
-        PAYLOAD.update(
-            {
-                "check_in": "2023-01-13",
-                "check_out": "2023-01-01",
-            }
-        )
+
+        PAYLOAD["check_in"] = "2023-12-21"
+        PAYLOAD["check_out"] = "2023-11-21"
+
+        res = self.client.post(CampGround_URL, PAYLOAD)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        PAYLOAD["check_in"] = "2023-12-21"
+        PAYLOAD["check_out"] = "2023-12-21"
 
         res = self.client.post(CampGround_URL, PAYLOAD)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

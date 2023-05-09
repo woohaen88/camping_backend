@@ -22,5 +22,10 @@ class CampGround(CommonModel):
     address = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
 
+    tags = models.ManyToManyField(
+        "tags.Tag",
+        related_name="campgrounds",
+    )
+
     def __str__(self) -> str:
         return self.name
