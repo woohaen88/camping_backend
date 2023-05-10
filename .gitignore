@@ -468,3 +468,4 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,macos,python,django,pycharm+all
+/.vscode/
