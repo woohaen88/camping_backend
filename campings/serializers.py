@@ -1,13 +1,22 @@
+from django.db import transaction
+
+
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError, NotFound
 
 from campings.models import CampGround
+from tags.models import Tag
 from users.serializers import TinyUserSerializer
 from tags.serializers import TagSerializer
 
 
 class CampGroundSerializer(serializers.ModelSerializer):
     owner = TinyUserSerializer(read_only=True)
-    tags = TagSerializer(read_only=True)
+    tags = TagSerializer(
+        read_only=True,
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = CampGround
@@ -34,4 +43,25 @@ class CampGroundSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        print("validated_data", validated_data)
+        tags = validated_data.pop("tags", None)
+        if tags:
+            try:
+                with transaction.atomic():
+                    campground = CampGround.objects.create(**validated_data)
+
+                    for tag_id in tags:
+                        try:
+                            tag_obj = Tag.objects.get(id=tag_id)
+                            campground.tags.add(tag_obj)
+
+                            campground.save()
+
+                        except Tag.DoesNotExist:
+                            raise NotFound("Content가 없습니다.")
+
+            except Exception as e:
+                raise ParseError("bad request!!")
+
+            return campground
+
+        return CampGround.objects.create(**validated_data)

@@ -15,3 +15,23 @@ class TinyUserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_active",
         ]
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password1 = serializers.CharField(max_length=255)
+    password2 = serializers.CharField(max_length=255)
+    username = serializers.CharField(
+        max_length=255,
+        allow_blank=True,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "email",
+            "password1",
+            "password2",
+            "username",
+        ]

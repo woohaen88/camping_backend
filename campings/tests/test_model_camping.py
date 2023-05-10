@@ -95,7 +95,8 @@ class PrivateCampGroundModelTest(TestCase):
             address="test address",
             name="sample",
         )
-        res = self.client.post(CampGround_URL, payload)
+        res = self.client.post(CampGround_URL, payload, format="json")
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         campGround = CampGround.objects.get(owner=self.user)
