@@ -18,7 +18,9 @@ campGroundViewSetDetail = CampGroundViewSet.as_view(
     }
 )
 
+
+app_name = "campings"
 urlpatterns = [
-    path("", campGroundViewSet),
-    path("<int:campGround_id>/", campGroundViewSetDetail),
+    path("", campGroundViewSet, name="list"),
+    path("<int:campGround_id>/", campGroundViewSetDetail, name="detail"),
 ]

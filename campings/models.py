@@ -11,15 +11,22 @@ class CampGround(CommonModel):
         related_name="campgrounds",
     )
 
-    check_in = models.DateField()
-    check_out = models.DateField()
+    price = models.PositiveIntegerField()
 
-    ratings = models.PositiveIntegerField()
     description = models.TextField(
         null=True,
         blank=True,
     )
+
+    pet_friendly = models.BooleanField(default=False)
+    ev_friendly = models.BooleanField(default=False)
     address = models.CharField(max_length=255)
+
+    check_in = models.DateField()
+    check_out = models.DateField()
+
+    ratings = models.PositiveIntegerField()
+
     name = models.CharField(max_length=255)
 
     tags = models.ManyToManyField(

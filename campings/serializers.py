@@ -10,8 +10,7 @@ from users.serializers import TinyUserSerializer
 from tags.serializers import TagSerializer
 
 
-class CampGroundSerializer(serializers.ModelSerializer):
-    owner = TinyUserSerializer(read_only=True)
+class CampGroundListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
         read_only=True,
         many=True,
@@ -21,16 +20,28 @@ class CampGroundSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampGround
         fields = [
+            "id",
             "name",
-            "owner",
             "address",
+            "price",
+            "tags",
+        ]
+
+
+class CampGroundDetailSerializer(CampGroundListSerializer):
+    owner = TinyUserSerializer(read_only=True)
+
+    class Meta(CampGroundListSerializer.Meta):
+        fields = CampGroundListSerializer.Meta.fields + [
+            "owner",
             "check_in",
             "check_out",
             "ratings",
             "description",
             "created_at",
             "updated_at",
-            "tags",
+            "pet_friendly",
+            "ev_friendly",
         ]
 
     def validate(self, attrs):
