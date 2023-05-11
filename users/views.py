@@ -1,8 +1,16 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import (
+    get_user_model,
+    authenticate,
+    login,
+)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import CreateAPIView
+from rest_framework.exceptions import (
+    AuthenticationFailed,
+    ParseError,
+)
 
 from users.serializers import SignUpSerializer, LoginSerializer
 
@@ -34,12 +42,23 @@ class LoginView(CreateAPIView):
     serializer_class = LoginSerializer
 
     def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.data.get("email")
+            password = serializer.data.get("password")
 
-    def perform_create(self, serializer):
-        request_data = self.request.data
-        serializer.save(
-            email=request_data["email"],
-            password=request_data["password"],
-            username=request_data["username"],
-        )
+            user = authenticate(
+                request,
+                username=email,
+                password=password,
+            )
+
+            if user:
+                login(request, user)
+                return Response(
+                    {"message": "login success"},
+                    status=status.HTTP_200_OK,
+                )
+            raise AuthenticationFailed("Invalid Credentials")
+
+        raise ParseError("Bad request!!")

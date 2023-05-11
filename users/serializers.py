@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from django.contrib.auth import (
+    get_user_model,
+    authenticate,
+    login,
+)
 
 
 class TinyUserSerializer(serializers.ModelSerializer):
@@ -40,7 +44,11 @@ class SignUpSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
-    username = serializers.CharField(required=False)
 
-    def create(self, validated_data):
-        print("validated_data: ", validated_data)
+    def validate(self, attrs):
+        email = attrs.get("email", None)
+        password = attrs.get("password", None)
+
+        assert email is not None and password is not None, "email이나 password값이 없음."
+
+        return attrs

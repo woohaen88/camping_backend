@@ -26,8 +26,13 @@ class UserAPITests(TestCase):
         """올바른 자격증명 데이터 => success"""
         payload = dict(email="user@example.com", password="test123!@#")
         res = self.client.post(LOGIN_URL, payload)
-        self.assertEqual(res.status, status.HTTP_200_OK)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data.get("message"), "login success")
 
     def test_invalid_credentials_login_error(self):
         """유효하지않은 자격증명 데이터 => Bad Request"""
-        pass
+        payload = dict(email="user@example.com", password="test123!@#$")
+        res = self.client.post(LOGIN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
