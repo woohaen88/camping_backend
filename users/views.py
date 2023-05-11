@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import CreateAPIView
 
-from users.serializers import SignUpSerializer
+from users.serializers import SignUpSerializer, LoginSerializer
 
 
 class SignUPViewSet(ModelViewSet):
@@ -27,3 +28,18 @@ class SignUPViewSet(ModelViewSet):
         password1 = self.request.data.get("password1")
         password2 = self.request.data.get("password2")
         get_user_model().objects.create_user(email=email, password=password1)
+
+
+class LoginView(CreateAPIView):
+    serializer_class = LoginSerializer
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        request_data = self.request.data
+        serializer.save(
+            email=request_data["email"],
+            password=request_data["password"],
+            username=request_data["username"],
+        )

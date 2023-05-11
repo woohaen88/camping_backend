@@ -35,3 +35,12 @@ class SignUpSerializer(serializers.ModelSerializer):
             "password2",
             "username",
         ]
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    username = serializers.CharField(required=False)
+
+    def create(self, validated_data):
+        print("validated_data: ", validated_data)
