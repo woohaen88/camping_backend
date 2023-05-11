@@ -7,4 +7,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path(BASE_URL + "camping/", include("campings.urls")),
     path(BASE_URL + "user/", include("users.urls")),
+    path(BASE_URL + "media/", include("medias.urls")),
 ]

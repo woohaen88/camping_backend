@@ -137,6 +137,27 @@ class PrivateCampgroundAPITests(TestCase):
 
         self.assertEqual(campground.owner, self.user)
 
+    def test_create_campground_invalid_date(self):
+        """Test creating a campground"""
+        PAYLOAD = dict(
+            price=3000,
+            address="address 입니다.",
+            description="description 입니다.",
+            pet_friendly=False,
+            ev_friendly=True,
+            check_in="2023-11-14",
+            check_out="2023-11-13",
+            ratings=4,
+            name="name!!!",
+        )
+        res = self.client.post(
+            CAMPGROUND_URL,
+            PAYLOAD,
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_full_update(self):
         """Test full update of campground"""
         campground, payload = create_campground(self.user)
