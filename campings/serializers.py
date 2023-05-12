@@ -5,12 +5,18 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError, NotFound
 
 from campings.models import CampGround
+from medias.serializers import PhotoSerializer
 from tags.models import Tag
 from users.serializers import TinyUserSerializer
 from tags.serializers import TagSerializer
 
 
 class CampGroundListSerializer(serializers.ModelSerializer):
+    photos = PhotoSerializer(
+        many=True,
+        required=False,
+        read_only=True,
+    )
     tags = TagSerializer(
         read_only=True,
         many=True,
@@ -25,6 +31,7 @@ class CampGroundListSerializer(serializers.ModelSerializer):
             "address",
             "price",
             "tags",
+            "photos",
         ]
 
 

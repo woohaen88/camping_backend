@@ -150,5 +150,13 @@ REST_FRAMEWORK = {
     ]
 }
 
-CF_TOKEN = env("CF_TOKEN")
-CF_ID = env("CF_ID")
+
+CLOUDFLARE_IMAGES_ACCOUNT_ID = env("CF_ID")
+CLOUDFLARE_IMAGES_API_TOKEN = env("CF_TOKEN")
+CLOUDFLARE_IMAGES_ACCOUNT_HASH = env("CF_HASH_ID")
+# CLOUDFLARE_IMAGES_DOMAIN = "imagedelivery.net"
+CLOUDFLARE_IMAGES_VARIANT = "public"
+
+
+# STORAGES = {"default": {"BACKEND": "cloudflare_images.storage.CloudflareImagesStorage"}}
+DEFAULT_FILE_STORAGE = "cloudflare_images.storage.CloudflareImagesStorage"

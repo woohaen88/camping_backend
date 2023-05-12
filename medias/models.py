@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from cloudflare_images.field import CloudflareImagesField
 
 
 class Photo(models.Model):
@@ -13,7 +14,7 @@ class Photo(models.Model):
         on_delete=models.CASCADE,
         related_name="photos",
     )
-    file = models.URLField()
+    file = CloudflareImagesField()
     description = models.TextField(
         null=True,
         blank=True,

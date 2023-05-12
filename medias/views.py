@@ -1,10 +1,12 @@
-from rest_framework.generics import CreateAPIView
+from django.urls import reverse
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from medias.serializers import PhotoSerializer
 import requests
 from django.conf import settings
 from rest_framework.exceptions import ParseError
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 
 
 class GetImageUrlCloudFlareAPIView(CreateAPIView):

@@ -6,6 +6,9 @@ from rest_framework.exceptions import NotAuthenticated
 
 from campings.models import CampGround
 from campings.serializers import CampGroundDetailSerializer, CampGroundListSerializer
+from medias.models import Photo
+from medias.serializers import PhotoSerializer
+from ast import literal_eval
 
 
 class CampGroundViewSet(ModelViewSet):
@@ -26,7 +29,21 @@ class CampGroundViewSet(ModelViewSet):
 
         serializer.is_valid(raise_exception=True)
 
-        self.perform_create(serializer)
+        campground = self.perform_create(serializer)
+
+        # Image
+        files_iterator = request.FILES.lists()
+        files_dict = next(files_iterator)
+
+        files_dict_key, files_dict_value = files_dict
+
+        for file in files_dict_value:
+            photo = Photo.objects.create(
+                file=file,
+                owner=request.user,
+                campgrounds=campground,
+            )
+            photo.save()
 
         headers = self.get_success_headers(serializer.data)
 
@@ -37,7 +54,7 @@ class CampGroundViewSet(ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        serializer.save(
+        return serializer.save(
             owner=self.request.user,
             tags=self.request.data.get("tags"),
         )
