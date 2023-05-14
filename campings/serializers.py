@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError, NotFound
 
 from campings.models import CampGround
+from medias.models import Photo
 from medias.serializers import PhotoSerializer
 from tags.models import Tag
 from users.serializers import TinyUserSerializer
@@ -15,7 +16,7 @@ class CampGroundListSerializer(serializers.ModelSerializer):
     photos = PhotoSerializer(
         many=True,
         required=False,
-        read_only=True,
+        # read_only=True,
     )
     tags = TagSerializer(
         read_only=True,
@@ -83,3 +84,36 @@ class CampGroundDetailSerializer(CampGroundListSerializer):
             return campground
 
         return CampGround.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop("tags", None)
+        files = validated_data.pop("files", None)
+        if tags is not None:  # tags 값이 존재하면
+            try:
+                with transaction.atomic():
+                    for tag_id in tags:
+                        try:
+                            tag_obj = Tag.objects.get(id=tag_id)
+                            instance.tags.add(tag_obj)
+                            instance.save()
+
+                        except Tag.DoesNotExist:
+                            raise NotFound("Content가 없습니다.")
+
+            except Exception as e:
+                raise ParseError("bad request!!")
+
+        if files:
+            files = files.getlist("files")
+
+            for file in files:
+                Photo.objects.create(
+                    owner=self.context["request"].user,
+                    campgrounds=instance,
+                    file=file,
+                )
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        return instance

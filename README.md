@@ -27,4 +27,10 @@ API :
         - columns:
             name: str
             slug: str, auto
-    
+
+
+[API List]
+Login  
+Signup  
+    - google로 로그인  
+    - kakao로 로그인

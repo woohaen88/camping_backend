@@ -1,3 +1,8 @@
+import tempfile
+from io import BytesIO
+
+from PIL import Image
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -287,11 +292,12 @@ class PrivateCampgroundAPITests(TestCase):
 
         res = self.client.post(
             CAMPGROUND_URL,
-            payload,
+            data=payload,
             format="json",
         )
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
         campground = CampGround.objects.get(id=res.data["id"])
 
         self.assertEqual(

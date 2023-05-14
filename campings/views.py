@@ -1,3 +1,10 @@
+from django.utils.datastructures import MultiValueDict
+from rest_framework.parsers import (
+    MultiPartParser,
+    JSONParser,
+    FormParser,
+    FileUploadParser,
+)
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -15,6 +22,12 @@ class CampGroundViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = CampGroundDetailSerializer
     queryset = CampGround.objects.all()
+    parser_classes = [
+        MultiPartParser,
+        JSONParser,
+        FormParser,
+        FileUploadParser,
+    ]
 
     lookup_field = "id"
     lookup_url_kwarg = "campGround_id"
@@ -24,15 +37,13 @@ class CampGroundViewSet(ModelViewSet):
             return CampGroundListSerializer
         return super().get_serializer_class()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
-        serializer.is_valid(raise_exception=True)
-
-        campground = self.perform_create(serializer)
-
-        # Image
-        files_iterator = request.FILES.lists()
+    def request_files_save_photo(
+        self,
+        request,
+        campground: CampGround,
+        files: MultiValueDict,
+    ):
+        files_iterator = files.lists()
         files_dict = next(files_iterator)
 
         files_dict_key, files_dict_value = files_dict
@@ -44,6 +55,18 @@ class CampGroundViewSet(ModelViewSet):
                 campgrounds=campground,
             )
             photo.save()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        campground = self.perform_create(serializer)
+
+        # Image
+
+        if request.FILES:
+            self.request_files_save_photo(request, campground, request.FILES)
 
         headers = self.get_success_headers(serializer.data)
 
@@ -64,7 +87,21 @@ class CampGroundViewSet(ModelViewSet):
         if instance.owner != request.user:
             raise NotAuthenticated
 
-        return super().update(request, *args, **kwargs)
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(files=request.FILES)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)
+
+        ###
+
+        # return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

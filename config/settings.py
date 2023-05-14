@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from typing import Dict, Any
+
 import environ
 
 env = environ.Env(
@@ -52,9 +54,7 @@ CUSTOM_APPS = [
     "tags.apps.TagsConfig",
     "campings.apps.CampingsConfig",
 ]
-THIRD_PARTY_APPS = [
-    "rest_framework",
-]
+THIRD_PARTY_APPS = ["rest_framework", "drf_spectacular"]
 INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
@@ -144,10 +144,11 @@ AUTH_USER_MODEL = "users.User"
 
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
 }
 
 
@@ -160,3 +161,9 @@ CLOUDFLARE_IMAGES_VARIANT = "public"
 
 # STORAGES = {"default": {"BACKEND": "cloudflare_images.storage.CloudflareImagesStorage"}}
 DEFAULT_FILE_STORAGE = "cloudflare_images.storage.CloudflareImagesStorage"
+
+SPECTACULAR_SETTINGS: Dict[str, Any] = {
+    "SCHEMA_PATH_PREFIX": "/api/v[0-9]+",
+    "COMPONENT_SPLIT_PATCH": True,
+    "COMPONENT_SPLIT_REQUEST": True,
+}
