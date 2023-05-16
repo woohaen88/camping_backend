@@ -10,6 +10,8 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.exceptions import (
     AuthenticationFailed,
     ParseError,
+    NotAuthenticated,
+    PermissionDenied,
 )
 
 from users.serializers import SignUpSerializer, LoginSerializer, MeSerializer
@@ -68,6 +70,8 @@ class MeView(RetrieveAPIView):
     serializer_class = MeSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        instance = get_user_model().objects.get(id=request.user.id)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        if request.user.id is not None:
+            instance = get_user_model().objects.get(id=request.user.id)
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        raise PermissionDenied("Login 되지 않음")
