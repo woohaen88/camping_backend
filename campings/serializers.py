@@ -33,6 +33,7 @@ class CampGroundListSerializer(serializers.ModelSerializer):
             "price",
             "tags",
             "photos",
+            "owner",
         ]
 
 
@@ -41,7 +42,6 @@ class CampGroundDetailSerializer(CampGroundListSerializer):
 
     class Meta(CampGroundListSerializer.Meta):
         fields = CampGroundListSerializer.Meta.fields + [
-            "owner",
             "check_in",
             "check_out",
             "ratings",
