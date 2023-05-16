@@ -55,7 +55,7 @@ CUSTOM_APPS = [
     "campings.apps.CampingsConfig",
 ]
 THIRD_PARTY_APPS = [
-    "rest_framework", 
+    "rest_framework",
     "drf_spectacular",
     "corsheaders",
 ]
@@ -173,9 +173,6 @@ SPECTACULAR_SETTINGS: Dict[str, Any] = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000'
-]
+CORS_ORIGIN_WHITELIST = ["http://127.0.0.1:3000", "http://localhost:3000"]
 
 CORS_ALLOW_CREDENTIALS = True

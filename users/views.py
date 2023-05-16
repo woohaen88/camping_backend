@@ -6,13 +6,13 @@ from django.contrib.auth import (
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.exceptions import (
     AuthenticationFailed,
     ParseError,
 )
 
-from users.serializers import SignUpSerializer, LoginSerializer
+from users.serializers import SignUpSerializer, LoginSerializer, MeSerializer
 
 
 class SignUPViewSet(ModelViewSet):
@@ -62,3 +62,12 @@ class LoginView(CreateAPIView):
             raise AuthenticationFailed("Invalid Credentials")
 
         raise ParseError("Bad request!!")
+
+
+class MeView(RetrieveAPIView):
+    serializer_class = MeSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = get_user_model().objects.get(id=request.user.id)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

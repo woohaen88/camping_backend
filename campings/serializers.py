@@ -13,6 +13,7 @@ from tags.serializers import TagSerializer
 
 
 class CampGroundListSerializer(serializers.ModelSerializer):
+    owner = TinyUserSerializer(read_only=True)
     photos = PhotoSerializer(
         many=True,
         required=False,
@@ -34,17 +35,15 @@ class CampGroundListSerializer(serializers.ModelSerializer):
             "tags",
             "photos",
             "owner",
+            "check_in",
+            "check_out",
+            "ratings",
         ]
 
 
 class CampGroundDetailSerializer(CampGroundListSerializer):
-    owner = TinyUserSerializer(read_only=True)
-
     class Meta(CampGroundListSerializer.Meta):
         fields = CampGroundListSerializer.Meta.fields + [
-            "check_in",
-            "check_out",
-            "ratings",
             "description",
             "created_at",
             "updated_at",

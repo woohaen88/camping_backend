@@ -52,3 +52,18 @@ class LoginSerializer(serializers.Serializer):
         assert email is not None and password is not None, "email이나 password값이 없음."
 
         return attrs
+
+
+class MeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "id",
+            "email",
+            "avatar",
+            "username",
+            "is_superuser",
+            "first_name",
+            "last_name",
+            "is_staff",
+        ]

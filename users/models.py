@@ -74,6 +74,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=True,
     )
     date_joined = models.DateTimeField(default=timezone.now)
+    avatar = models.URLField(
+        blank=True,
+        null=True,
+    )
 
     objects = UserManager()
 
