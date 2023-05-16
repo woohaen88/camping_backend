@@ -15,6 +15,7 @@ from rest_framework import status
 from campings.models import CampGround
 from tags.models import Tag
 from campings.serializers import CampGroundListSerializer, CampGroundDetailSerializer
+from medias.models import Photo
 
 CAMPGROUND_URL = reverse("campings:list")
 
@@ -50,6 +51,12 @@ def create_campground(owner, **params):
 
     defaults.update(params)
     campground = CampGround.objects.create(owner=owner, **defaults)
+    for file in ["1.png", "2.png"]:
+        Photo.objects.create(
+            file=file,
+            owner=owner,
+            campgrounds=campground,
+        )
     return campground, defaults
 
 
@@ -90,6 +97,13 @@ class PrivateCampgroundAPITests(TestCase):
             password="test123!@#",
         )
         self.client.force_authenticate(self.user)
+
+    def test_get_campground(self):
+        res = self.client.get(CAMPGROUND_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        campground = CampGround.objects.all()
+        serializer = CampGroundListSerializer(campground, many=True)
+        self.assertEqual(res.data, serializer.data)
 
     def test_retrieve_campground(self):
         """Test retrieving a list of campgrounds"""
@@ -188,6 +202,7 @@ class PrivateCampgroundAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         campground.refresh_from_db()
+        campground = CampGround.objects.get(id=res.data["id"])
 
         self.assertEqual(
             CampGroundDetailSerializer(campground).data,

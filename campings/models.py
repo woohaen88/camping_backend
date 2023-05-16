@@ -32,6 +32,8 @@ class CampGround(CommonModel):
     tags = models.ManyToManyField(
         "tags.Tag",
         related_name="campgrounds",
+        
+        blank=True,
     )
 
     def __str__(self) -> str:
