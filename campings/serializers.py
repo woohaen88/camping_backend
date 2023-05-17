@@ -62,6 +62,7 @@ class CampGroundDetailSerializer(CampGroundListSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop("tags", None)
+
         if tags:
             try:
                 with transaction.atomic():

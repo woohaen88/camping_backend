@@ -21,7 +21,7 @@ from ast import literal_eval
 class CampGroundViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = CampGroundDetailSerializer
-    queryset = CampGround.objects.all()
+    queryset = CampGround.objects.all().order_by("-updated_at")
     parser_classes = [
         MultiPartParser,
         JSONParser,
@@ -77,9 +77,15 @@ class CampGroundViewSet(ModelViewSet):
         )
 
     def perform_create(self, serializer):
+        tags = self.request.data.get("tags", None)
+        if tags is None:
+            tags = self.request.data.getlist("tags[]")
+            if len(tags) == 0:
+                tags = None
+
         return serializer.save(
             owner=self.request.user,
-            tags=self.request.data.get("tags"),
+            tags=tags,
         )
 
     def update(self, request, *args, **kwargs):
