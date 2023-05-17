@@ -60,6 +60,3 @@ class UserAPITests(TestCase):
 
         res = self.client.post(LOGOUT_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-
-

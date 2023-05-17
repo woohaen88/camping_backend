@@ -21,4 +21,5 @@ urlpatterns = [
     # custom
     path(BASE_URL + "camping/", include("campings.urls")),
     path(BASE_URL + "user/", include("users.urls")),
+    path(BASE_URL + "tag/", include("tags.urls")),
 ]

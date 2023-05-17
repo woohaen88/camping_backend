@@ -77,14 +77,13 @@ class MeView(RetrieveAPIView):
             return Response(serializer.data)
         raise PermissionDenied("Login 되지 않음")
 
+
 class LogOutView(CreateAPIView):
     permission_classes = [IsAuthenticated]
-    def create(self, request, *args, **kwargs):        
+
+    def create(self, request, *args, **kwargs):
         user = request.user
         if user is not None:
             logout(request)
-            return Response({"message" : "logout success"}, status=status.HTTP_200_OK)    
+            return Response({"message": "logout success"}, status=status.HTTP_200_OK)
         raise PermissionDenied("Logout 되지 않음")
-            
-
-        

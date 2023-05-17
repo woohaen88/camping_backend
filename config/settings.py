@@ -175,6 +175,9 @@ SPECTACULAR_SETTINGS: Dict[str, Any] = {
 
 CORS_ORIGIN_WHITELIST = ["http://127.0.0.1:3000", "http://localhost:3000"]
 
-CORS_ALLOW_CREDENTIALS = True # django가 javascript를 통해 credential를 받아도된다고 허락
+CORS_ALLOW_CREDENTIALS = True  # django가 javascript를 통해 credential를 받아도된다고 허락
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000"] # post요청을 보낼 수 있는 사이트 등록
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+]  # post요청을 보낼 수 있는 사이트 등록

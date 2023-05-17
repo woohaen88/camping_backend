@@ -64,7 +64,6 @@ class CampGroundViewSet(ModelViewSet):
         campground = self.perform_create(serializer)
 
         # Image
-        
 
         if request.FILES:
             self.request_files_save_photo(request, campground, request.FILES)
