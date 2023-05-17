@@ -2,6 +2,7 @@ from django.contrib.auth import (
     get_user_model,
     authenticate,
     login,
+    logout,
 )
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,7 +14,7 @@ from rest_framework.exceptions import (
     NotAuthenticated,
     PermissionDenied,
 )
-
+from rest_framework.permissions import IsAuthenticated
 from users.serializers import SignUpSerializer, LoginSerializer, MeSerializer
 
 
@@ -75,3 +76,15 @@ class MeView(RetrieveAPIView):
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
         raise PermissionDenied("Login 되지 않음")
+
+class LogOutView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    def create(self, request, *args, **kwargs):        
+        user = request.user
+        if user is not None:
+            logout(request)
+            return Response({"message" : "logout success"}, status=status.HTTP_200_OK)    
+        raise PermissionDenied("Logout 되지 않음")
+            
+
+        

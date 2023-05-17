@@ -8,6 +8,7 @@ from users.serializers import MeSerializer
 
 LOGIN_URL = reverse("users:log-in")
 ME_URL = reverse("users:me")
+LOGOUT_URL = reverse("users:log-out")
 
 
 def create_user(**kwargs):
@@ -52,3 +53,13 @@ class UserAPITests(TestCase):
         serializer = MeSerializer(userObj)
 
         self.assertEqual(serializer.data, res.data)
+
+    def test_logout(self):
+        user = create_user(email="user1@example.com")
+        self.client.force_authenticate(user)
+
+        res = self.client.post(LOGOUT_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+
