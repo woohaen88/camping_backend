@@ -38,7 +38,8 @@ class SignUPViewSet(ModelViewSet):
         email = self.request.data.get("email")
         password1 = self.request.data.get("password1")
         password2 = self.request.data.get("password2")
-        get_user_model().objects.create_user(email=email, password=password1)
+        user = get_user_model().objects.create_user(email=email, password=password1)
+        login(self.request, user)
 
 
 class LoginView(CreateAPIView):
