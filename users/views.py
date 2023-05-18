@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.contrib.auth import (
     get_user_model,
     authenticate,
     login,
     logout,
 )
+
+import requests
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -88,3 +91,28 @@ class LogOutView(CreateAPIView):
             logout(request)
             return Response({"message": "logout success"}, status=status.HTTP_200_OK)
         raise PermissionDenied("Logout 되지 않음")
+
+
+class KakaoView(CreateAPIView):
+    
+
+    def create(self, request, *args, **kwargs):
+        code = request.data.get("code", None)
+        if code is None:
+            raise ParseError
+        url: str = "https://kauth.kakao.com/oauth/token"
+        res = requests.post(url, data={
+                        "grant_type" : "authorization_code",
+                        "client_id" : settings.KAKAO_REST_API_KEY,
+                        "code":code,
+                            }, 
+                            headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+        })
+        res = res.json()
+        access_token = res.get("access_token")
+
+ 
+ 
+ 
+ 
