@@ -94,25 +94,73 @@ class LogOutView(CreateAPIView):
 
 
 class KakaoView(CreateAPIView):
-    
-
     def create(self, request, *args, **kwargs):
         code = request.data.get("code", None)
         if code is None:
             raise ParseError
         url: str = "https://kauth.kakao.com/oauth/token"
-        res = requests.post(url, data={
-                        "grant_type" : "authorization_code",
-                        "client_id" : settings.KAKAO_REST_API_KEY,
-                        "code":code,
-                            }, 
-                            headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-        })
+        res = requests.post(
+            url,
+            data={
+                "grant_type": "authorization_code",
+                "client_id": settings.KAKAO_REST_API_KEY,
+                "code": code,
+            },
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        )
         res = res.json()
-        access_token = res.get("access_token")
 
- 
- 
- 
- 
+        access_token = res.get("access_token", None)
+        if access_token is None:
+            raise ParseError
+
+        res = requests.get(
+            "https://kapi.kakao.com/v2/user/me",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+            },
+        )
+
+        res = res.json()
+
+        kakao_account = res.get("kakao_account")
+        # user 정보
+        email = kakao_account.get("email")
+        profile = kakao_account.get("profile")
+        nickname = profile.get("nickname")
+        avatar = profile.get("thumbnail_image_url")
+
+        print("email: ", email)
+        print("nickname: ", nickname)
+        print("avatar: ", avatar)
+        print("profile: ", profile)
+
+        # 유저가 존재하는지 확인
+        #      유저가 존재하면 로그인으로 진행
+        # 유저가 존재하지 않으면 계정생성 후 로그인
+
+        try:
+            # 유저가 존재하면
+            user = get_user_model().objects.get(
+                email=email,
+                create_via=get_user_model().CreateViaChoice.KAKAO,
+            )
+
+        except:
+            # 유저가 없으면
+            user = get_user_model().objects.create(
+                email=email,
+                username=nickname,
+                avatar=avatar,
+                create_via=get_user_model().CreateViaChoice.KAKAO,
+            )
+            user.set_unusable_password()
+            user.save()
+
+        login(request, user)
+        return Response(
+            {"deatil": "login success"},
+            status=status.HTTP_200_OK,
+        )

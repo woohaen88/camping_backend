@@ -79,6 +79,19 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True,
     )
 
+    class CreateViaChoice(models.TextChoices):
+        WEB = "web", "WEB"
+        KAKAO = "kakao", "KAKAO"
+        GITHUB = "github", "GITHUB"
+        GOOGLE = "google", "GOOGLE"
+        NAVER = "naver", "NAVER"
+
+    create_via = models.CharField(
+        max_length=6,
+        choices=CreateViaChoice.choices,
+        default=CreateViaChoice.WEB,
+    )
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"
