@@ -37,6 +37,7 @@ uritemplate = ">=4.1.1"
 urllib3 = ">=1.26.15"
 wheel = ">=0.40.0"
 django-cloudflare-images = "^0.5.2"
+whitenoise = "^6.4.0"
 
 [tool.poetry.dev-dependencies]
 
