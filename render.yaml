@@ -1,5 +1,5 @@
 databases:
-  - name: campGround
+  - name: campGround-db
     databaseName: campGround
     user: campGround
     region: singapore
