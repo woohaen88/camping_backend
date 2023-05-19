@@ -226,6 +226,7 @@ CORS_ALLOW_CREDENTIALS = True  # django가 javascript를 통해 credential를 �
 
 KAKAO_REST_API_KEY = env("KAKAO_REST_API_KEY")
 
-# if not DEBUG:
-#     SESSION_COOKIE_DOMAIN = ".airbnbclonetest.xyz"
-#     CSRF_COOKIE_DOMAIN = ".airbnbclonetest.xyz"
+# https://
+if not DEBUG:
+    SESSION_COOKIE_DOMAIN = ".campground-frontend.onrender.com"
+    CSRF_COOKIE_DOMAIN = ".campground-frontend.onrender.com"
