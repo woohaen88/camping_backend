@@ -225,3 +225,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]  # post요청을 보낼 수 있는 사이트 등록
 
 KAKAO_REST_API_KEY = env("KAKAO_REST_API_KEY")
+
+# if not DEBUG:
+#     SESSION_COOKIE_DOMAIN = ".airbnbclonetest.xyz"
+#     CSRF_COOKIE_DOMAIN = ".airbnbclonetest.xyz"
