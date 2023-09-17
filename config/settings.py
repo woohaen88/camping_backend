@@ -138,4 +138,4 @@ CORS_ALLOW_CREDENTIALS: True
 
 # CORS_ALLOW_HEADERS = default_headers + ("x-api-key",)
 
-# APPEND_SLASH = False
+APPEND_SLASH = False
