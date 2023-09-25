@@ -26,7 +26,7 @@ class Campground(CommonModel):
     manner_time_start = models.TimeField()
     manner_time_end = models.TimeField()
 
-    content = models.TextField()
+    content = models.TextField(blank=True, null=True)
 
     maximum_people = models.PositiveIntegerField(default=4)
     is_ev_charge = models.BooleanField(default=False)

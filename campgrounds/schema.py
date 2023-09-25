@@ -43,6 +43,7 @@ class ReviewSchema(ModelSchema):
         ]
 
 
+# campground schema
 class ALLCampgroundSchema(ModelSchema):
     owner: TinyUserSchema
     amenities: List[AmenitySchema] = []
@@ -78,3 +79,29 @@ class UpdateCampgroundSchema(ModelSchema):
         model = Campground
         model_exclude = ["owner", "created_at", "updated_at", "amenities", "id"]
         model_fields_optional = "__all__"
+
+
+class CreateCampgroundSchema(ModelSchema):
+    class Config:
+        model = Campground
+        model_fields = [
+            "name",
+            "rating",
+            "price",
+            "view",
+            "visited_at",
+            "visited_end",
+            "manner_time_start",
+            "manner_time_end",
+            "content",
+            "maximum_people",
+            "is_ev_charge",
+            "camping_kind",
+            "location",
+            "location_lat_lon",
+        ]
+
+
+class OneTimeUploadSchema(Schema):
+    id: str
+    uploadURL: str

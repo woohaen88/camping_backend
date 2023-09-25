@@ -1,6 +1,13 @@
 import os
 from pathlib import Path
 from django.contrib import messages
+import environ
+
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,6 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-*lxa@%e32jzs645n!-3)3q7fgdv@x#=9)73c7*8l^cm++=2+jr"
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -147,3 +157,6 @@ CSRF_TRUSTED_ORIGINS = [
 # CORS_ALLOW_HEADERS = default_headers + ("x-api-key",)
 
 # APPEND_SLASH = False
+CF_KEY = env("CF_KEY")
+CF_TOKEN = env("CF_TOKEN")
+CF_ID = env("CF_ID")

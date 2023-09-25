@@ -4,23 +4,22 @@ from campgrounds.schema import (
     TinyCampgroundSchema,
     MessageSchema,
     UpdateCampgroundSchema,
-    UpdateAmenitySchema,
+    CreateCampgroundSchema,
+    OneTimeUploadSchema,
 )
 from typing import List
 from ninja.responses import codes_4xx, codes_2xx
 from django.shortcuts import get_object_or_404
+from ninja.errors import ValidationError
 
 # custom
-from campgrounds.models import Campground, Amenity
+from campgrounds.models import Campground
+from ninja.security import django_auth
+from django.conf import settings
+
+import requests
 
 router = Router(tags=["Camping"])
-
-
-# @router.get("/", deprecated=True)
-# def hello_world(request):
-#     return {"message": "hello_world"}
-
-# api/vi1/campgrounds
 
 
 @router.get("/", response=List[TinyCampgroundSchema])
@@ -78,27 +77,44 @@ def update_campground(request, campground_id: int, payload: UpdateCampgroundSche
     return 200, campground
 
 
-@router.put(
-    "/api/v1/campgrounds/amenities/{amenity_id}",
-    response={codes_2xx: MessageSchema},
-    tags=["amenities"],
+@router.post(
+    "/",
+    response={
+        200: ALLCampgroundSchema,
+        codes_4xx: MessageSchema,
+    },
+    auth=django_auth,
 )
-def update_amenities(request, amenity_id: int, payload: UpdateAmenitySchema):
-    amenity = get_object_or_404(Amenity, id=amenity_id)
-    for key, value in payload.dict().items():
-        if value:
-            setattr(amenity, key, value)
-    amenity.save()
-    return 200, {"message": "성공!!"}
+def create_campground(request, payload: CreateCampgroundSchema):
+    payload_dict = payload.dict()
+
+    try:
+        campground = Campground.objects.create(owner=request.user, **payload_dict)
+    except Exception:
+        return 400, ValidationError("저기여 잘못됐어요")
+    return 200, campground
 
 
-@router.delete(
-    "/api/v1/campgrounds/amenities/{amenity_id}",
-    response={codes_2xx: MessageSchema},
-    tags=["amenities"],
+# media
+# {'id': '5a9589f9-a4d5-44a8-178d-80380a1bc600', 'uploadURL': 'https://upload.imagedelivery.net/4Rif_N_iuDtYv_8KyNzDpg/5a9589f9-a4d5-44a8-178d-80380a1bc600'
+@router.post(
+    "image/upload", response={200: OneTimeUploadSchema, codes_4xx: MessageSchema}
 )
-def delte_amenities(request, amenity_id: int, payload: UpdateAmenitySchema):
-    amenity = get_object_or_404(Amenity, id=amenity_id)
+def upload_image(request):
+    url = f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload"
+    try:
+        one_time_url = requests.post(
+            url, headers={"Authorization": f"Bearer {settings.CF_TOKEN}"}
+        )
+    except Exception:
+        return 400, {"message": "bad request!"}
+    one_time_url = one_time_url.json()
 
-    amenity.delete()
-    return 200, {"message": "성공!!"}
+    result = one_time_url.get("result")
+    id = result.get("id")
+    uploadURL = result.get("uploadURL")
+
+    return 200, {
+        "id": id,
+        "uploadURL": uploadURL,
+    }

@@ -1,6 +1,7 @@
 from ninja import NinjaAPI
 
-from campgrounds.api import router as campground_router
+# from campgrounds.apis import router as campground_router
+from campgrounds.apis import router as campground_router
 from users.api import router as users_router
 
 
