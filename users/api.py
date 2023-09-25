@@ -1,8 +1,10 @@
 from ninja import Router
-from .shcema import Signin, Signup, ChangePassword
+from .shcema import Signin, Signup, ChangePassword, TinyUserSchema
+
 from common.schema import MessageSchema
 from ninja import errors
 from django.contrib.auth import get_user_model, login, logout
+from ninja.security import django_auth
 
 
 router = Router(tags=["users"])
@@ -27,11 +29,12 @@ def signup(request, payload: Signup):
     if user_exists:
         raise errors.ValidationError("저기여 이미 유저가 있자나여")
 
-    get_user_model().objects.create_user(
+    user = get_user_model().objects.create_user(
         email=email,
         password=password,
         username=username,
     )
+    login(request, user)
 
     return {"message": "회원가입 ㅊㅋ"}
 
@@ -55,8 +58,13 @@ def signin(request, payload: Signin):
     return {"message": "로그인 되었으라!"}
 
 
+@router.get("/me", response={200: TinyUserSchema}, auth=django_auth)
+def get_me(request):
+    return 200, request.user
+
+
 ## 패스워드 바꾸기
-@router.patch("/me/chage_password")
+@router.patch("/me/chage_password", auth=django_auth)
 def change_password(request, payload: ChangePassword):
     if not request.user.is_authenticated:
         raise errors.AuthenticationError("로그인 해라!")

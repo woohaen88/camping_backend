@@ -3,23 +3,11 @@ from typing import List
 from ninja import ModelSchema, Schema, Field
 from campgrounds.models import Campground, Amenity, Image, Review
 from django.contrib.auth import get_user_model
+from users.shcema import TinyUserSchema
 
 
 class MessageSchema(Schema):
     message: str
-
-
-class TinyUserSchema(ModelSchema):
-    class Config:
-        model = get_user_model()
-        model_fields = [
-            "id",
-            "email",
-            "username",
-            "avatar",
-            "first_name",
-            "last_name",
-        ]
 
 
 class ImageSchema(ModelSchema):
@@ -32,6 +20,12 @@ class AmenitySchema(ModelSchema):
     class Config:
         model = Amenity
         model_fields = ["id", "name"]
+
+
+class UpdateAmenitySchema(ModelSchema):
+    class Config:
+        model = Amenity
+        model_fields = ["name"]
 
 
 class ReviewSchema(ModelSchema):
@@ -77,3 +71,10 @@ class TinyCampgroundSchema(ModelSchema):
             "view",
             "owner",
         ]
+
+
+class UpdateCampgroundSchema(ModelSchema):
+    class Config:
+        model = Campground
+        model_exclude = ["owner", "created_at", "updated_at", "amenities", "id"]
+        model_fields_optional = "__all__"

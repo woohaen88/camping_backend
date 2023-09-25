@@ -131,11 +131,19 @@ AUTH_USER_MODEL = "users.User"
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
+    "http://localhost:8080",
+    "http://localhost:8080",
 ]
+# ALLOWED_HOSTS = ["*"]
+# CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOW_CREDENTIALS: True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 # from corsheaders.defaults import default_headers
 
 # CORS_ALLOW_HEADERS = default_headers + ("x-api-key",)
 
-APPEND_SLASH = False
+# APPEND_SLASH = False
