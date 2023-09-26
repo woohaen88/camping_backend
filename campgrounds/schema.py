@@ -105,3 +105,16 @@ class CreateCampgroundSchema(ModelSchema):
 class OneTimeUploadSchema(Schema):
     id: str
     uploadURL: str
+
+
+# Image
+class CampgroundUploadSchemaIn(ModelSchema):
+    class Config:
+        model = Image
+        model_fields = [
+            "file",
+        ]
+
+
+class CampgroundUploadSchemaOut(Schema):
+    message: str

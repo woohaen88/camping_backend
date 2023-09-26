@@ -6,6 +6,8 @@ from campgrounds.schema import (
     UpdateCampgroundSchema,
     CreateCampgroundSchema,
     OneTimeUploadSchema,
+    CampgroundUploadSchemaIn,
+    CampgroundUploadSchemaOut,
 )
 from typing import List
 from ninja.responses import codes_4xx, codes_2xx
@@ -16,6 +18,8 @@ from ninja.errors import ValidationError
 from campgrounds.models import Campground
 from ninja.security import django_auth
 from django.conf import settings
+from ninja.errors import HttpError
+from campgrounds.models import Image
 
 import requests
 
@@ -55,7 +59,7 @@ def delete_campground_detail(request, campground_id: int):
 
 
 @router.api_operation(
-    ["PUT", "PATCh"],
+    ["PUT", "PATCH"],
     "/{campground_id}",
     response={
         200: ALLCampgroundSchema,
@@ -98,9 +102,10 @@ def create_campground(request, payload: CreateCampgroundSchema):
 # media
 # {'id': '5a9589f9-a4d5-44a8-178d-80380a1bc600', 'uploadURL': 'https://upload.imagedelivery.net/4Rif_N_iuDtYv_8KyNzDpg/5a9589f9-a4d5-44a8-178d-80380a1bc600'
 @router.post(
-    "image/upload", response={200: OneTimeUploadSchema, codes_4xx: MessageSchema}
+    "/image/one-time-upload",
+    response={200: OneTimeUploadSchema, codes_4xx: MessageSchema},
 )
-def upload_image(request):
+def get_onetime_url(request):
     url = f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload"
     try:
         one_time_url = requests.post(
@@ -118,3 +123,32 @@ def upload_image(request):
         "id": id,
         "uploadURL": uploadURL,
     }
+
+
+# /campgrounds/1/image/upload
+# {
+#     file: URLField
+# }
+@router.post(
+    "/{campground_id}/image/upload",
+    response={200: CampgroundUploadSchemaOut},
+    auth=django_auth,
+)
+def campground_image_upload(
+    request, campground_id: int, payload: CampgroundUploadSchemaIn
+):
+    payload_dict = payload.dict()
+    file = payload_dict.get("file")
+
+    try:
+        campground = Campground.objects.get(id=campground_id)
+    except Exception:
+        raise HttpError(404, "저기여 데이터가 없어영!!")
+
+    Image.objects.create(
+        file=file,
+        owner=request.user,
+        campground=campground,
+    )
+
+    return 200, {"message": "이미지 업로드 성공"}
