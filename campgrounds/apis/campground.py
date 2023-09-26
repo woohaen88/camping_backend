@@ -8,6 +8,7 @@ from campgrounds.schema import (
     OneTimeUploadSchema,
     CampgroundUploadSchemaIn,
     CampgroundUploadSchemaOut,
+    CampgroundSearchSchema,
 )
 from typing import List
 from ninja.responses import codes_4xx, codes_2xx
@@ -99,56 +100,56 @@ def create_campground(request, payload: CreateCampgroundSchema):
     return 200, campground
 
 
-# media
-# {'id': '5a9589f9-a4d5-44a8-178d-80380a1bc600', 'uploadURL': 'https://upload.imagedelivery.net/4Rif_N_iuDtYv_8KyNzDpg/5a9589f9-a4d5-44a8-178d-80380a1bc600'
-@router.post(
-    "/image/one-time-upload",
-    response={200: OneTimeUploadSchema, codes_4xx: MessageSchema},
-)
-def get_onetime_url(request):
+def get_onetime_url():
     url = f"https://api.cloudflare.com/client/v4/accounts/{settings.CF_ID}/images/v2/direct_upload"
     try:
         one_time_url = requests.post(
             url, headers={"Authorization": f"Bearer {settings.CF_TOKEN}"}
         )
-    except Exception:
-        return 400, {"message": "bad request!"}
+    except Exception as e:
+        raise ValidationError(e)
+
     one_time_url = one_time_url.json()
 
     result = one_time_url.get("result")
     id = result.get("id")
     uploadURL = result.get("uploadURL")
 
-    return 200, {
+    return {
         "id": id,
         "uploadURL": uploadURL,
     }
 
 
-# /campgrounds/1/image/upload
-# {
-#     file: URLField
-# }
-@router.post(
-    "/{campground_id}/image/upload",
-    response={200: CampgroundUploadSchemaOut},
-    auth=django_auth,
-)
-def campground_image_upload(
-    request, campground_id: int, payload: CampgroundUploadSchemaIn
-):
-    payload_dict = payload.dict()
-    file = payload_dict.get("file")
+@router.post("/{campground_id}/image/upload")
+def get_upload_url(request, campground_id: int):
+    files = request.FILES
+    file_list = files.getlist("file")
 
-    try:
-        campground = Campground.objects.get(id=campground_id)
-    except Exception:
-        raise HttpError(404, "저기여 데이터가 없어영!!")
+    for file in file_list:
+        one_time_resp = get_onetime_url()  # id, uploadURL
+        uploadURL = one_time_resp.get("uploadURL")
 
-    Image.objects.create(
-        file=file,
-        owner=request.user,
-        campground=campground,
-    )
+        uploaded_data_resp = requests.post(
+            uploadURL,
+            files={"file": file},
+        )
 
-    return 200, {"message": "이미지 업로드 성공"}
+        uploaded_data_resp = uploaded_data_resp.json()
+        result = uploaded_data_resp.get("result")
+        image_url = result.get("variants")[0]
+
+        # camping object
+        try:
+            campground = Campground.objects.get(id=campground_id)
+        except Exception:
+            raise HttpError(404, "캠핑이 없어요!!!")
+
+        Image.objects.create(owner=request.user, campground=campground, file=image_url)
+    return 200, {"message": "업로드 성공!"}
+
+
+@router.get("/search", response=List[ALLCampgroundSchema])
+def search_campground(request, search: CampgroundSearchSchema):
+    campground = Campground.objects.filter(search=search)
+    return campground

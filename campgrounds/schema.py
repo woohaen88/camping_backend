@@ -118,3 +118,8 @@ class CampgroundUploadSchemaIn(ModelSchema):
 
 class CampgroundUploadSchemaOut(Schema):
     message: str
+
+
+# search
+class CampgroundSearchSchema(Schema):
+    search: str
